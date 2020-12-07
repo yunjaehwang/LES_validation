@@ -1,0 +1,16 @@
+solid X1
+ facet normal 1 0 0
+  outer loop
+   vertex 1.55 0.000 -0.55
+   vertex 1.55 0.600 -0.55
+   vertex 1.55 0.000 0.55
+  endloop
+ endfacet
+ facet normal 1 0 0
+  outer loop
+   vertex 1.55 0.600 -0.55
+   vertex 1.55 0.600 0.55 
+   vertex 1.55 0.000 0.55
+  endloop
+ endfacet
+endsolid X1
