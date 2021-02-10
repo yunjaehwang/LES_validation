@@ -1,0 +1,140 @@
+# ==========================================
+# CharLES Inflow Optimization
+#  - empty domain
+# ==========================================
+
+# cluding the VERBOSE flag will enhance the information printed to stdout
+VERBOSE
+RESTART = mesh.mles
+
+# Restart file can be specified by just a mesh or from both a mesh and corresponding solution
+# INIT time=0.0 step=0 u=6.6 0 0 p=0
+
+INTERP_FROM_RESTART ./result_init.sles
+# INTERP_FROM_RESTART ./output_init/RES/RES.00009000.sles
+INIT time=0.0 step=0
+
+# Final step, starting from the step specified with INIT 
+NSTEPS=3000
+
+CHECK_INTERVAL=1
+# valid TIMESTEP options are:
+# - DT=<constant dt>
+# - CFL=<constant cfl>
+TIMESTEP DT=0.0001
+
+# ==========================================
+# Modeling and Boundary Conditions  
+# ==========================================
+# specification of the sub-gridscale model:
+SGS_MODEL=VREMAN
+
+# reset stats or comment out to include the results from the previous run
+RESET_STATS 
+STATS u p rho
+
+# Specification of gas properties:
+# the following parameters require specification
+EOS HELMHOLTZ
+RHO 1.225
+MU 1.789e-5
+HELMHOLTZ_SOS 340
+
+# the following parameters can be uncommented to adjust from their default values (displayed)
+#GAMMA 1.4
+#MU_POWER_LAW 0.76
+#PR_LAM 0.7
+#C_DISS 1.0
+
+# Initial condition specification:
+#INIT_RUP 1.2 10.0 0.0 0.0 101325
+
+# Boundary condition specification:
+# Valid options for IDEAL_GAS are
+#  - SLIP or SYMMETRY
+#  - CBC_UPT
+#  - CBC_MPT
+#  - CBC_RUNP
+#  - CBC_RUP
+#  - CBC_TOTAL_PT
+#  - NSCBC_MT
+#  - NSCBC_OUTLET_P
+#  - WALL_ISOTHERMAL
+#  - WALL_ADIABATIC (template default)
+
+# Boundary Conditions 
+# x0 = HOOK 
+# # INFLOW_TURB PROFILE CONSTANT_UTKE 0 1 0 0.05 RESET
+# side_S = INLET 0 5 0 # INFLOW_TURB PROFILE FLUENT_UREY ./inletProf_outfall.prof L 54.0 RESET
+x0_turb = HOOK  NY 100 NZ 100 UREF 7.63 REFD 0.3 \\
+        LAGT_U 0.042424 LAGT_W 0.012727 LAGT_V 0.008484
+X1 = OUTLET_VV 1.0 0.1 0.0 0.0 LOCAL_U
+Y0          = WM_ALG_WALL ROUGHNESS_HEIGHT 0.000025
+Y1          = SLIP
+# Z0 & Z1: periodic
+building    = WM_ALG_WALL
+# building    = WALL
+
+
+# ==========================================
+# Diagnostics  
+# ==========================================
+# Write a full restart file every n steps
+WRITE_RESULT NAME=./output_init/RES/RES INTERVAL=1000
+# write all data in VTK format
+# WRITE_DATA NAME=./output_init/vtk/u FORMAT=VTK INTERVAL=500 GEOM=ALL VARS=u
+
+
+# Boundary monitors
+# QUERY_BC y0 INTERVAL=10 WRITE
+# QUERY_BC x0 INTERVAL=10 WRITE
+# QUERY_BC x1 INTERVAL=10 WRITE
+
+
+# ----- PNG images -----
+WRITE_IMAGE NAME=./output_init/IMG/U INTERVAL=200 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u,0) SIZE 1100 300
+WRITE_IMAGE NAME=./output_init/IMG/V INTERVAL=200 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u,1) SIZE 1100 300
+WRITE_IMAGE NAME=./output_init/IMG/W INTERVAL=200 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u,2) SIZE 1100 300
+
+WRITE_IMAGE NAME=./output_init/IMG2/U INTERVAL=200 GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=comp(u,0) SIZE 2100 1100
+WRITE_IMAGE NAME=./output_init/IMG2/V INTERVAL=200 GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=comp(u,1) SIZE 2100 1100
+WRITE_IMAGE NAME=./output_init/IMG2/W INTERVAL=200 GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=comp(u,2) SIZE 2100 1100
+
+WRITE_IMAGE NAME=./output_init/IMG4/U INTERVAL=200 GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=comp(u,0) SIZE 2100 1100
+WRITE_IMAGE NAME=./output_init/IMG4/V INTERVAL=200 GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=comp(u,1) SIZE 2100 1100
+WRITE_IMAGE NAME=./output_init/IMG4/W INTERVAL=200 GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=comp(u,2) SIZE 2100 1100
+
+WRITE_IMAGE NAME=./output_init/IMG6/U INTERVAL=200 GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=comp(u,0) SIZE 2100 1100
+WRITE_IMAGE NAME=./output_init/IMG6/V INTERVAL=200 GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=comp(u,1) SIZE 2100 1100
+WRITE_IMAGE NAME=./output_init/IMG6/W INTERVAL=200 GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=comp(u,2) SIZE 2100 1100
+
+# ----- Probes ------
+# POINT
+# PROBE NAME=probes/mag_u INTERVAL=1 GEOM=POINT 0 0 10 VARS=mag(u)
+
+# LINE
+PROBE NAME=./output_init/LINE/bd GEOM=LINE 0.55 0.01 0.55 0.55 0.6 0.55 120 VARS=comp(u,0) comp(u,1) comp(u,2)
+
+# PLANE PROBE
+# (point cloud, from pre-defined points)
+# vertical plane
+POINTCLOUD_PROBE NAME=./output_init/PC/vertical INTERVAL=200 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_vertical.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
+
+# horizontal plane
+POINTCLOUD_PROBE NAME=./output_init/PC/horizontal_2 INTERVAL=200 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_y2.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
+POINTCLOUD_PROBE NAME=./output_init/PC/horizontal_4 INTERVAL=200 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_y4.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
+POINTCLOUD_PROBE NAME=./output_init/PC/horizontal_6 INTERVAL=200 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_y6.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
+
+# openings: inlet & outlet
+POINTCLOUD_PROBE NAME=./output_init/PC/inlet INTERVAL=200 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_inlet.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
+POINTCLOUD_PROBE NAME=./output_init/PC/outlet INTERVAL=200 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_outlet.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
+
+
+# FLUX - not working
+# monitor mass flow rate, x-momentum flux, and mixture-mass fraction flux
+# FLUX_PROBE NAME=probes/myFluxProbe INTERVAL=1 XP=0.0 0.0 0.0 NP=1.0 0.0 0.0 VARS=mass_flux() mass_flux(comp(u,0)) mass_flux(Z)
+# FLUX_PROBE NAME=./output_init/probe_flux/outlet INTERVAL=1 XP=0.0 -0.05 0.04 NP=0 1 0 VARS=mass_flux() mass_flux(comp(u,1))
+
+
+
+
