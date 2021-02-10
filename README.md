@@ -16,8 +16,13 @@ Validation of wind-driven ventilation experiment using Large-eddy simulation
 - Gradient-based inflow optimization
 - add inflow optimization result
 
+## Sensitivity study
+- inflow condition
+- Grid sensitivity study
+
 ## Configurations
-- Various configurations  
+- Various ventilation configurations  
+- and flow directions
 
 ## Quantity of interest
 1. Ventilation rate / orifice equation
@@ -25,8 +30,6 @@ Validation of wind-driven ventilation experiment using Large-eddy simulation
 - pressure 
 2. Age of air ()
 - Scalar transport equation
-
-
-## discharge coefficient?
+3. discharge coefficient?
 
 
