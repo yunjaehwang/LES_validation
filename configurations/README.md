@@ -1,7 +1,17 @@
 # Various ventilation configurations
 
-# List of configurations
+- List of configurations (opening locations)
 
-# Flow directions
+	- top
+	- bottom
+	- center
+	- bottom / top
+	- no windows
+
+- Flow directions
+
+	- 0 degree
+	- 45 degree
+	- 90 degree
 
 
