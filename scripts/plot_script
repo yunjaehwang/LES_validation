@@ -1,0 +1,18 @@
+# Set the output to a png file
+set terminal pop
+# set terminal png size 1000,1000
+# The file we'll write to
+# set output 'Concentration.png'
+# The graphic title
+set title 'Scalar, CT: '
+
+# set xrange [-100:200]
+set yrange [-200:300]
+
+#plot the graphic
+plot "<cat log.charles5 | grep 'CT,' | awk -F[:,] '{print $3}'" title 'Min', \
+    "<cat log.charles5 | grep 'CT,' | awk -F[:,] '{print $4}'" title 'Max';
+replot
+pause 10
+reread
+

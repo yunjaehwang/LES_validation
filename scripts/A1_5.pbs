@@ -1,0 +1,29 @@
+#!/bin/bash
+#PBS -A USTN0003
+#PBS -N A1_5
+#PBS -l walltime=12:00:00
+###PBS -q regular
+#PBS -q economy
+#PBS -j oe
+#PBS -m abe
+#PBS -M yunjaeh@stanford.edu
+### Select 2 nodes with 36 CPUs each for a total of 72 MPI processes
+#PBS -l select=6:ncpus=36:mpiprocs=36
+
+
+# export TMPDIR=/glade/scratch/$USER/temp
+# mkdir -p $TMPDIR
+cd /glade/scratch/yunjaeh/
+cd ./validation/A1_5/
+
+### Run the executable
+# mpiexec_mpt  $HOME/charles/nextgen_turb/charles.exe -i 03_charles_init.in | tee log.init
+# mpiexec_mpt  $HOME/charles/nextgen_turb/charles.exe -i 03_charles.in | tee log.charles3
+mpiexec_mpt  $HOME/charles/nextgen_turb/charles.exe -i 05_charles.in | tee log.charles5
+
+### Run job 2 if program runs successfully
+# if [[ $? == 0 ]]; then
+#     qsub ../qscript/A1_5.90.pbs
+# fi
+
+
