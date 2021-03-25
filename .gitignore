@@ -4,6 +4,9 @@
 *.o
 *.exe
 
+# log files
+log.*
+
 # mesh and result files
 *.mles
 *.sles
