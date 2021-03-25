@@ -1,0 +1,13 @@
+# git ignore
+
+# executable and link files
+*.o
+*.exe
+
+# mesh and result files
+*.mles
+*.sles
+
+# folders
+output
+
