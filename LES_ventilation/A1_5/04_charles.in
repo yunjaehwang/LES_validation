@@ -31,7 +31,7 @@ define y_outlet 0.04
 define z_outlet 0.55
 
 # interval of output data
-define interval_IMG 1
+define interval_IMG 10
 define interval_RES 1000
 define interval_SNAPSHOT 10
 define interval_PC 10
@@ -140,31 +140,31 @@ WRITE_IMAGE NAME=./output/IMG_H/mag INTERVAL=$(interval_IMG) \
 		WIDTH=0.4 VAR=comp(u,0)
 
 # inlet & outlet
-# WRITE_IMAGE NAME=./output/IMG_in/u INTERVAL=$(interval_IMG) \
-#		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
-#		WIDTH=0.2 VAR=comp(u,0)
-# WRITE_IMAGE NAME=./output/IMG_in/v INTERVAL=$(interval_IMG) \
-#		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
-#		WIDTH=0.2 VAR=comp(u,1)
-# WRITE_IMAGE NAME=./output/IMG_in/w INTERVAL=$(interval_IMG) \
-#		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
-#		WIDTH=0.2 VAR=comp(u,2)
-# WRITE_IMAGE NAME=./output/IMG_in/p INTERVAL=$(interval_IMG) \
-#		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet)  $(nx) $(ny) $(nz) \
-#		WIDTH=0.2 VAR=p
+WRITE_IMAGE NAME=./output/IMG_in/u INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,0)
+WRITE_IMAGE NAME=./output/IMG_in/v INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,1)
+WRITE_IMAGE NAME=./output/IMG_in/w INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,2)
+WRITE_IMAGE NAME=./output/IMG_in/p INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet)  $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=p
 
-# WRITE_IMAGE NAME=./output/IMG_out/u INTERVAL=$(interval_IMG) \
-#		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
-#		WIDTH=0.2 VAR=comp(u,0)
-# WRITE_IMAGE NAME=./output/IMG_out/v INTERVAL=$(interval_IMG) \
-#		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
-#		WIDTH=0.2 VAR=comp(u,1)
-# WRITE_IMAGE NAME=./output/IMG_out/w INTERVAL=$(interval_IMG) \
-#		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
-#		WIDTH=0.2 VAR=comp(u,2)
-# WRITE_IMAGE NAME=./output/IMG_out/u INTERVAL=$(interval_IMG) \
-#		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
-# 		WIDTH=0.2 VAR=p
+WRITE_IMAGE NAME=./output/IMG_out/u INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,0)
+WRITE_IMAGE NAME=./output/IMG_out/v INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,1)
+WRITE_IMAGE NAME=./output/IMG_out/w INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,2)
+WRITE_IMAGE NAME=./output/IMG_out/u INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+ 		WIDTH=0.2 VAR=p
 
 
 # ==========================================
