@@ -1,6 +1,0 @@
-#!/bin/bash
-/home/yunjaeh/CharLES/nextgen/bin/surfer.exe -i 01_surfer.in  | tee log.surfer
-mpiexec -n 12 /home/yunjaeh/CharLES/nextgen/bin/stitch.exe -i 02_stitch.in | tee log.stitch
-
-# $HOME/nextgen/bin/surfer.exe -i 01_surfer.in 
-#mpiexec -n 680 $HOME/nextgen/bin/stitch.exe -i 02_stitch.in

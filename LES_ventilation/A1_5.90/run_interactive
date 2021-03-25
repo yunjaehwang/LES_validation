@@ -1,6 +1,0 @@
-#!/bin/bash
-# qinteractive -l select=1:ncpus=18:mpiprocs=18
-
-# $HOME/charles/nextgen/bin/surfer.exe -i 01_surfer.in | tee log.surfer
-# mpiexec_mpt  $HOME/charles/nextgen/bin/stitch.exe -i 02_stitch.in | tee log.stitch
-mpiexec_mpt  $HOME/charles/nextgen_turb/charles.exe -i 04_charles.in | tee log.interactive
