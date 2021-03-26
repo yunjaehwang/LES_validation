@@ -9,7 +9,7 @@ HCP_X0 0.55 0.039 0.55
 # HCP_DX0 0.601 0.041 0.55
 
 # read prelimiary mesh file (after SURFER step)
-PART SURF SBIN ./test_surfer.sbin
+PART SURF SBIN ./mesh_surfer.sbin
 COUNT_POINTS
 
 # Box refinement usage: HCP_WINDOW BOX x0 x1 y0 y1 z0 z1 LEVEL ?
@@ -36,5 +36,5 @@ WRITE_IMAGE NAME=./output/MSH/y_0.04 GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=3d_mesh
 WRITE_IMAGE NAME=./output/MSH/y_0.06 GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=3d_mesh SIZE 4200 2200
 WRITE_IMAGE NAME=./output/MSH/z_0.5 GEOM=Z_PLANE_FRAC 0.5 VAR=3d_mesh SIZE 4200 1200 
 
-WRITE_RESTART mesh.mles
+WRITE_RESTART A1_5.90.mles
 INTERACTIVE
