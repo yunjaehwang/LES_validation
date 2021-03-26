@@ -23,11 +23,11 @@ define nz sin($(theta))
 #   45 deg: (0.5147, 0.04, 0.5147), (0.5853, 0.04, 0.5853)
 #   90 deg:
 define x_inlet 0.50001
-define y_inlet 0.06
+define y_inlet 0.02
 define z_inlet 0.55
 
 define x_outlet 0.6
-define y_outlet 0.06
+define y_outlet 0.02
 define z_outlet 0.55
 
 # interval of output data
