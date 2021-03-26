@@ -3,7 +3,7 @@
 #   - written by Yunjae Hwang
 #
 # ==========================================
-
+define CASE E1_10.0
 # ==========================================
 # Parameters
 # ==========================================
@@ -13,7 +13,7 @@ define Ly 0.6
 define Lz 1.1
 
 # rotation angle and normal vector
-define theta 3.141592/180*45
+define theta 3.141592/180*0.0
 define nx cos($(theta))
 define ny 0.0
 define nz sin($(theta))
@@ -31,7 +31,7 @@ define y_outlet 0.04
 define z_outlet 0.55
 
 # interval of output data
-define interval_IMG 1
+define interval_IMG 10
 define interval_RES 1000
 define interval_SNAPSHOT 10
 define interval_PC 10
@@ -42,24 +42,30 @@ define interval_PC 10
 # ==========================================
 # including the VERBOSE flag will enhance the information printed to stdout
 VERBOSE
-RESTART = mesh.mles
+
+# additional scalar to compute age of air
+# with laminar & turbulent Schmidt number =1
+REGISTER_SCALAR C
+C.SC_LAM = 1.0
+C.SC_T = 1.0
+
+# Read converged result file
+RESTART = $(CASE).mles
 
 # Restart file can be specified by just a mesh or from both a mesh and corresponding solution
-INIT time=0.0 step=0 u=6.6 0 0 p=0
-# INTERP_FROM_RESTART ./result.sles
+# INIT time=0.0 step=0 u=6.6 0 0 p=0
+INTERP_FROM_RESTART ./result.sles
 # INTERP_FROM_RESTART ./output/RES/RES.00003000.sles
 
-# INIT time=0.0 step=0
-
-# INIT time=0.0 step=0 CT=0
-# REGISTER_SCALAR CT
-# INIT_CV_DATA_IN_GEOM GEOM SBIN ../input/building_0.sbin INIT CT 100.0
+# initialize time, step and concentration
+# Inject high concentration inside the house
+INIT time=0.0 step=0 C=0.0
+INIT_CV_DATA_IN_GEOM GEOM SBIN ../input/building_0.sbin INIT C 100.0
 
 # Final step, starting from the step specified with INIT 
-NSTEPS=10
+NSTEPS=60000
 TIMESTEP DT=0.0001
 CHECK_INTERVAL=1
-
 
 # ==========================================
 # Modeling and Boundary Conditions  
@@ -75,45 +81,70 @@ SGS_MODEL=VREMAN
 
 # reset stats or comment out to include the results from the previous run
 RESET_STATS
-STATS u p
+STATS u p C
 
 # Boundary Conditions 
 # x0_turb = INFLOW_TURB PROFILE CONSTANT_UTKE 0 1 0 0.05 RESET
-# x0_turb = INLET 0 5 0 
-# x0_turb = INFLOW_TURB PROFILE FLUENT_UREY ./inletProf_outfall.prof L 54.0 RESET
-x0_turb = HOOK  NY 100 NZ 100 UREF 7.63 REFD 0.3 \\
-        LAGT_U 0.04242424 LAGT_W 0.01711911 LAGT_V 0.01141274
+# x0_turb = INLET 5 0 0
+x0_turb = HOOK NY 100 NZ 100 UREF 7.63 REFD 0.3 \
+        LAGT_U 0.04242424 LAGT_W 0.01711911 LAGT_V 0.01141274 C 0.0
 #         LAGT_U 0.042424 LAGT_W 0.012727 LAGT_V 0.008484
 X1 = OUTLET_VV 1.0 0.1 0.0 0.0 LOCAL_U
 Y0          = WM_ALG_WALL ROUGHNESS_HEIGHT 0.000025
 Y1          = SLIP
 # Z0 & Z1: periodic
-# building    = WM_ALG_WALL
-building    = WALL
+
+building    = WM_ALG_WALL
+# building    = WALL
 
 # ==========================================
 # Diagnostics
 # ==========================================
 # Write a full restart file every n steps
-WRITE_RESULT NAME=./output/RES/RES INTERVAL=$(interval_RES)
+WRITE_RESULT NAME=./output/RES/RES \
+	INTERVAL=$(interval_RES)
 
 # Write snapshot data every n steps
-WRITE_SNAPSHOT NAME=./output/SNAPSHOT/UP INTERVAL=$(interval_SNAPSHOT) \
-    VARS=u p
+WRITE_SNAPSHOT NAME=./output/SNAPSHOT/UPC \
+	INTERVAL=$(interval_SNAPSHOT)  \
+	VARS=u p C
 
 # POINT probe
-PROBE NAME=./output/PT/inlet GEOM=POINT $(x_inlet) $(y_inlet) $(z_inlet) \
-	 VARS=comp(u,0) comp(u,1) comp(u,2) p
-PROBE NAME=./output/PT/outlet GEOM=POINT $(x_outlet) $(y_outlet) $(z_outlet) \
+PROBE NAME=./output/PT/inlet  \
+	GEOM=POINT $(x_inlet) $(y_inlet) $(z_inlet)    \
+	VARS=comp(u,0) comp(u,1) comp(u,2) p
+PROBE NAME=./output/PT/outlet \
+	GEOM=POINT $(x_outlet) $(y_outlet) $(z_outlet) \
 	VARS=comp(u,0) comp(u,1) comp(u,2) p
  
 # LINE probe
-PROBE NAME=./output/LINE/bd GEOM=LINE 0.55 0.01 0.55 0.55 0.6 0.55 120 \
-	VARS=comp(u,0) comp(u,1) comp(u,2) p
+# PROBE NAME=./output/LINE/bd GEOM=LINE 0.55 0.01 0.55 0.55 0.6 0.55 120 \
+# 	VARS=comp(u,0) comp(u,1) comp(u,2) p
+
+# POINT CLOUD probe
+POINTCLOUD_PROBE NAME=./output/PC/C \
+	INTERVAL=$(interval_PC) PRECISION=FLOAT \
+	GEOM=FILE ../input/PC_concentration.txt \
+	VARS comp(u,0) comp(u,1) comp(u,2) p C
 
 # ==========================================
 # PNG images 
 # ==========================================
+# vertical & horizontal
+WRITE_IMAGE NAME=./output/IMG_V/mag INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
+		WIDTH=0.4 VAR=comp(u,0)
+WRITE_IMAGE NAME=./output/IMG_H/mag INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.04 0.55 0 1 0 \
+		WIDTH=0.4 VAR=comp(u,0)
+
+WRITE_IMAGE NAME=./output/IMG_V/C INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
+		WIDTH=0.4 VAR=C
+WRITE_IMAGE NAME=./output/IMG_H/C INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.04 0.55 0 1 0 \
+		WIDTH=0.4 VAR=C
+
 # inlet & outlet
 WRITE_IMAGE NAME=./output/IMG_in/u INTERVAL=$(interval_IMG) \
 		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
@@ -139,7 +170,7 @@ WRITE_IMAGE NAME=./output/IMG_out/w INTERVAL=$(interval_IMG) \
 		WIDTH=0.2 VAR=comp(u,2)
 WRITE_IMAGE NAME=./output/IMG_out/u INTERVAL=$(interval_IMG) \
 		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
-		WIDTH=0.2 VAR=p
+ 		WIDTH=0.2 VAR=p
 
 
 # ==========================================
@@ -150,5 +181,5 @@ WRITE_IMAGE NAME=./output/IMG_out/u INTERVAL=$(interval_IMG) \
 # WRITE_IMAGE NAME=./output/IMG_CT/y4 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=CT
 # WRITE_IMAGE NAME=./output/IMG_CT/y6 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=CT
 
-# POINTCLOUD_PROBE NAME=./output/PC/CT INTERVAL=$(interval_PC) PRECISION=FLOAT GEOM=FILE ../input/PC_concentration.txt VARS comp(u,0) comp(u,1) comp(u,2) p CT
+
 
