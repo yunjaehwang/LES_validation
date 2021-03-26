@@ -133,10 +133,17 @@ POINTCLOUD_PROBE NAME=./output/PC/C \
 # vertical & horizontal
 WRITE_IMAGE NAME=./output/IMG_V/mag INTERVAL=$(interval_IMG) \
 		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
-		WIDTH=0.4 VAR=comp(u,0)
+		WIDTH=0.4 VAR=mag(u)
 WRITE_IMAGE NAME=./output/IMG_H/mag INTERVAL=$(interval_IMG) \
-		GEOM=PLANE 0.55 0.04 0.55 0 1 0 \
-		WIDTH=0.4 VAR=comp(u,0)
+		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
+		WIDTH=0.4 VAR=mag(u)
+
+WRITE_IMAGE NAME=./output/IMG_V/C INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
+		WIDTH=0.4 VAR=C
+WRITE_IMAGE NAME=./output/IMG_H/C INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
+		WIDTH=0.4 VAR=C
 
 # inlet & outlet
 WRITE_IMAGE NAME=./output/IMG_in/u INTERVAL=$(interval_IMG) \

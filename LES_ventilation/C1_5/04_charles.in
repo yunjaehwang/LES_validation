@@ -23,11 +23,11 @@ define nz sin($(theta))
 #   45 deg: (0.5147, 0.04, 0.5147), (0.5853, 0.04, 0.5853)
 #   90 deg:
 define x_inlet 0.50001
-define y_inlet 0.04
+define y_inlet 0.06
 define z_inlet 0.55
 
 define x_outlet 0.6
-define y_outlet 0.04
+define y_outlet 0.06
 define z_outlet 0.55
 
 # interval of output data
@@ -135,14 +135,14 @@ WRITE_IMAGE NAME=./output/IMG_V/mag INTERVAL=$(interval_IMG) \
 		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
 		WIDTH=0.4 VAR=mag(u)
 WRITE_IMAGE NAME=./output/IMG_H/mag INTERVAL=$(interval_IMG) \
-		GEOM=PLANE 0.55 0.02 0.55 0 1 0 \
+		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
 		WIDTH=0.4 VAR=mag(u)
 
 WRITE_IMAGE NAME=./output/IMG_V/C INTERVAL=$(interval_IMG) \
 		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
 		WIDTH=0.4 VAR=C
 WRITE_IMAGE NAME=./output/IMG_H/C INTERVAL=$(interval_IMG) \
-		GEOM=PLANE 0.55 0.02 0.55 0 1 0 \
+		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
 		WIDTH=0.4 VAR=C
 
 # inlet & outlet
