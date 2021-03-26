@@ -1,175 +1,185 @@
 # ==========================================
-# CharLES Inflow Optimization
-#  - empty domain
+# CharLES input file for LES validation case
+#   - written by Yunjae Hwang
+#
 # ==========================================
+define CASE E1_5.90
+# ==========================================
+# Parameters
+# ==========================================
+# domain size
+define Lx 2.1 
+define Ly 0.6
+define Lz 1.1
 
-# cluding the VERBOSE flag will enhance the information printed to stdout
+# rotation angle and normal vector
+define theta 3.141592/180*90.0
+define nx cos($(theta))
+define ny 0.0
+define nz sin($(theta))
+
+# center of inlet & outlet openings
+#   0 deg: (0.50001, 0.04, 0.55), (0.6, 0.04, 0.55)
+#   45 deg: (0.5147, 0.04, 0.5147), (0.5853, 0.04, 0.5853)
+#   90 deg:
+define x_inlet 0.55
+define y_inlet 0.04
+define z_inlet 0.50001
+
+define x_outlet 0.55
+define y_outlet 0.04
+define z_outlet 0.6
+
+# interval of output data
+define interval_IMG 10
+define interval_RES 1000
+define interval_SNAPSHOT 10
+define interval_PC 10
+
+
+# ==========================================
+# Start of script
+# ==========================================
+# including the VERBOSE flag will enhance the information printed to stdout
 VERBOSE
-RESTART = mesh.mles
 
+# additional scalar to compute age of air
+# with laminar & turbulent Schmidt number =1
+REGISTER_SCALAR C
+C.SC_LAM = 1.0
+C.SC_T = 1.0
+
+# Read converged result file
+RESTART = $(CASE).mles
 
 # Restart file can be specified by just a mesh or from both a mesh and corresponding solution
 # INIT time=0.0 step=0 u=6.6 0 0 p=0
-
 INTERP_FROM_RESTART ./result.sles
 # INTERP_FROM_RESTART ./output/RES/RES.00003000.sles
-INIT time=0.0 step=0
+
+# initialize time, step and concentration
+# Inject high concentration inside the house
+INIT time=0.0 step=0 C=0.0
+INIT_CV_DATA_IN_GEOM GEOM SBIN ../input/building_0.sbin INIT C 100.0
 
 # Final step, starting from the step specified with INIT 
-NSTEPS=20000
-
-CHECK_INTERVAL=1
-# valid TIMESTEP options are:
-# - DT=<constant dt>
-# - CFL=<constant cfl>
+NSTEPS=60000
 TIMESTEP DT=0.0001
+CHECK_INTERVAL=1
 
 # ==========================================
 # Modeling and Boundary Conditions  
 # ==========================================
-# specification of the sub-gridscale model:
-SGS_MODEL=VREMAN
-
-# reset stats or comment out to include the results from the previous run
-RESET_STATS
-STATS u p rho
-
-# Specification of gas properties:
-# the following parameters require specification
+# Specification of gas properties
 EOS HELMHOLTZ
 RHO 1.225
 MU 1.789e-5
 HELMHOLTZ_SOS 340
 
-# the following parameters can be uncommented to adjust from their default values (displayed)
-#GAMMA 1.4
-#MU_POWER_LAW 0.76
-#PR_LAM 0.7
-#C_DISS 1.0
+# specification of the sub-gridscale model
+SGS_MODEL=VREMAN
 
-# Initial condition specification:
-#INIT_RUP 1.2 10.0 0.0 0.0 101325
-
-# Boundary condition specification:
-# Valid options for IDEAL_GAS are
-#  - SLIP or SYMMETRY
-#  - CBC_UPT
-#  - CBC_MPT
-#  - CBC_RUNP
-#  - CBC_RUP
-#  - CBC_TOTAL_PT
-#  - NSCBC_MT
-#  - NSCBC_OUTLET_P
-#  - WALL_ISOTHERMAL
-#  - WALL_ADIABATIC (template default)
+# reset stats or comment out to include the results from the previous run
+RESET_STATS
+STATS u p C
 
 # Boundary Conditions 
-# x0 = HOOK 
-# # INFLOW_TURB PROFILE CONSTANT_UTKE 0 1 0 0.05 RESET
-# side_S = INLET 0 5 0 # INFLOW_TURB PROFILE FLUENT_UREY ./inletProf_outfall.prof L 54.0 RESET
-x0_turb = HOOK  NY 100 NZ 100 UREF 7.63 REFD 0.3 \\
-        LAGT_U 0.04242424 LAGT_W 0.01711911 LAGT_V 0.01141274
+# x0_turb = INFLOW_TURB PROFILE CONSTANT_UTKE 0 1 0 0.05 RESET
+# x0_turb = INLET 5 0 0
+x0_turb = HOOK NY 100 NZ 100 UREF 7.63 REFD 0.3 \
+        LAGT_U 0.04242424 LAGT_W 0.01711911 LAGT_V 0.01141274 C 0.0
 #         LAGT_U 0.042424 LAGT_W 0.012727 LAGT_V 0.008484
 X1 = OUTLET_VV 1.0 0.1 0.0 0.0 LOCAL_U
 Y0          = WM_ALG_WALL ROUGHNESS_HEIGHT 0.000025
 Y1          = SLIP
 # Z0 & Z1: periodic
+
 building    = WM_ALG_WALL
 # building    = WALL
 
-
 # ==========================================
-# Diagnostics  
+# Diagnostics
 # ==========================================
 # Write a full restart file every n steps
-WRITE_RESULT NAME=./output/RES/RES INTERVAL 1000
-# write all data in VTK format
-WRITE_DATA NAME=output/VTK/building \
-       FORMAT=VTK INTERVAL=100 \
-       GEOM=FAZONE building \
-       VARS=u p
-# WRITE_DATA NAME=./output/vtk/u FORMAT=VTK INTERVAL=500 GEOM=ALL VARS=u
+WRITE_RESULT NAME=./output/RES/RES \
+	INTERVAL=$(interval_RES)
 
-# Boundary monitors
-# QUERY_BC y0 INTERVAL=1000 WRITE
-# QUERY_BC x0 INTERVAL=1000 WRITE
-# QUERY_BC x1 INTERVAL=1000 WRITE
+# Write snapshot data every n steps
+WRITE_SNAPSHOT NAME=./output/SNAPSHOT/UPC \
+	INTERVAL=$(interval_SNAPSHOT)  \
+	VARS=u p C
 
+# POINT probe
+PROBE NAME=./output/PT/inlet  \
+	GEOM=POINT $(x_inlet) $(y_inlet) $(z_inlet)    \
+	VARS=comp(u,0) comp(u,1) comp(u,2) p
+PROBE NAME=./output/PT/outlet \
+	GEOM=POINT $(x_outlet) $(y_outlet) $(z_outlet) \
+	VARS=comp(u,0) comp(u,1) comp(u,2) p
+ 
+# LINE probe
+# PROBE NAME=./output/LINE/bd GEOM=LINE 0.55 0.01 0.55 0.55 0.6 0.55 120 \
+# 	VARS=comp(u,0) comp(u,1) comp(u,2) p
 
-# ----- PNG images -----
-WRITE_IMAGE NAME=./output/IMG/U INTERVAL=100 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u,0) SIZE 2200 600
-WRITE_IMAGE NAME=./output/IMG/V INTERVAL=100 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u,1) SIZE 2200 600
-WRITE_IMAGE NAME=./output/IMG/W INTERVAL=100 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u,2) SIZE 2200 600
+# POINT CLOUD probe
+POINTCLOUD_PROBE NAME=./output/PC/C \
+	INTERVAL=$(interval_PC) PRECISION=FLOAT \
+	GEOM=FILE ../input/PC_concentration.txt \
+	VARS comp(u,0) comp(u,1) comp(u,2) p C
 
-WRITE_IMAGE NAME=./output/IMG_V/U INTERVAL=100 GEOM=PLANE 0.55 0.3 0.55 1 0 0 VAR=comp(u,0) SIZE 1100 2200
-WRITE_IMAGE NAME=./output/IMG_V/V INTERVAL=100 GEOM=PLANE 0.55 0.3 0.55 1 0 0 VAR=comp(u,1) SIZE 1100 2200
-WRITE_IMAGE NAME=./output/IMG_V/W INTERVAL=100 GEOM=PLANE 0.55 0.3 0.55 1 0 0 VAR=comp(u,2) SIZE 1100 2200
+# ==========================================
+# PNG images 
+# ==========================================
+# vertical & horizontal
+WRITE_IMAGE NAME=./output/IMG_V/mag INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
+		WIDTH=0.4 VAR=mag(u)
+WRITE_IMAGE NAME=./output/IMG_H/mag INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
+		WIDTH=0.4 VAR=mag(u)
 
-WRITE_IMAGE NAME=./output/IMG2/U INTERVAL=100 GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=comp(u,0) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG2/V INTERVAL=100 GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=comp(u,1) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG2/W INTERVAL=100 GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=comp(u,2) SIZE 2100 1100
+WRITE_IMAGE NAME=./output/IMG_V/C INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
+		WIDTH=0.4 VAR=C
+WRITE_IMAGE NAME=./output/IMG_H/C INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
+		WIDTH=0.4 VAR=C
 
-WRITE_IMAGE NAME=./output/IMG4/U INTERVAL=100 GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=comp(u,0) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG4/V INTERVAL=100 GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=comp(u,1) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG4/W INTERVAL=100 GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=comp(u,2) SIZE 2100 1100
+# inlet & outlet
+WRITE_IMAGE NAME=./output/IMG_in/u INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,0)
+WRITE_IMAGE NAME=./output/IMG_in/v INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,1)
+WRITE_IMAGE NAME=./output/IMG_in/w INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,2)
+WRITE_IMAGE NAME=./output/IMG_in/p INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet)  $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=p
 
-WRITE_IMAGE NAME=./output/IMG6/U INTERVAL=100 GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=comp(u,0) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG6/V INTERVAL=100 GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=comp(u,1) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG6/W INTERVAL=100 GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=comp(u,2) SIZE 2100 1100
-
-# openings: inlet & outlet
-WRITE_IMAGE NAME=./output/IMG_in/U INTERVAL=100 GEOM=PLANE 1.05 0.3 0.50001 0 0 1 VAR=comp(u,0) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG_in/V INTERVAL=100 GEOM=PLANE 1.05 0.3 0.50001 0 0 1 VAR=comp(u,1) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG_in/W INTERVAL=100 GEOM=PLANE 1.05 0.3 0.50001 0 0 1 VAR=comp(u,2) SIZE 2100 1100
-
-WRITE_IMAGE NAME=./output/IMG_out/U INTERVAL=100 GEOM=PLANE 1.05 0.3 0.6 0 0 1 VAR=comp(u,0) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG_out/V INTERVAL=100 GEOM=PLANE 1.05 0.3 0.6 0 0 1 VAR=comp(u,1) SIZE 2100 1100
-WRITE_IMAGE NAME=./output/IMG_out/W INTERVAL=100 GEOM=PLANE 1.05 0.3 0.6 0 0 1 VAR=comp(u,2) SIZE 2100 1100
-
-
-
-
-# ----- Probes ------
-# POINT
-PROBE NAME=./output/PT/u2_in GEOM=POINT 0.55 0.02 0.5 VARS=comp(u,0) comp(u,1) comp(u,2) p
-PROBE NAME=./output/PT/u2_out GEOM=POINT 0.55 0.02 0.6 VARS=comp(u,0) comp(u,1) comp(u,2) p
-
-PROBE NAME=./output/PT/u4_in GEOM=POINT 0.55 0.04 0.5 VARS=comp(u,0) comp(u,1) comp(u,2) p
-PROBE NAME=./output/PT/u4_out GEOM=POINT 0.55 0.04 0.6 VARS=comp(u,0) comp(u,1) comp(u,2) p
-
-PROBE NAME=./output/PT/u6_in GEOM=POINT 0.55 0.06 0.5 VARS=comp(u,0) comp(u,1) comp(u,2) p
-PROBE NAME=./output/PT/u6_out GEOM=POINT 0.55 0.06 0.6 VARS=comp(u,0) comp(u,1) comp(u,2) p
-  
-# LINE
-PROBE NAME=./output/LINE/bd GEOM=LINE 0.55 0.01 0.55 0.55 0.6 0.55 120 VARS=comp(u,0) comp(u,1) comp(u,2) p
-
-PROBE NAME=./output/LINE/y2 GEOM=LINE 0.55 0.02 0.4 0.55 0.02 0.7 200 VARS=comp(u,0) comp(u,1) comp(u,2)
-PROBE NAME=./output/LINE/y4 GEOM=LINE 0.55 0.04 0.4 0.55 0.04 0.7 200 VARS=comp(u,0) comp(u,1) comp(u,2)
-PROBE NAME=./output/LINE/y6 GEOM=LINE 0.55 0.06 0.4 0.55 0.06 0.7 200 VARS=comp(u,0) comp(u,1) comp(u,2)
-
-
-
-
-# PLANE PROBE
-# (point cloud, from pre-defined points)
-# vertical plane
- POINTCLOUD_PROBE NAME=./output/PC/vertical INTERVAL=100 FORMAT=BINARY GEOM=FILE ../input/PC_vertical_90.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
-
-# horizontal plane
-POINTCLOUD_PROBE NAME=./output/PC/horizontal_2 INTERVAL=100 FORMAT=BINARY GEOM=FILE ../input/PC_y2.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
-POINTCLOUD_PROBE NAME=./output/PC/horizontal_4 INTERVAL=100 FORMAT=BINARY GEOM=FILE ../input/PC_y4.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
-POINTCLOUD_PROBE NAME=./output/PC/horizontal_6 INTERVAL=100 FORMAT=BINARY GEOM=FILE ../input/PC_y6.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
-
-# openings: inlet & outlet
-# POINTCLOUD_PROBE NAME=./output/PC/inlet INTERVAL=100 FORMAT=BINARY GEOM=FILE ../input/PC_inlet_45.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
-# POINTCLOUD_PROBE NAME=./output/PC/outlet INTERVAL=100 FORMAT=BINARY GEOM=FILE ../input/PC_outlet_45.pts VARS comp(u,0) comp(u,1) comp(u,2) p 
+WRITE_IMAGE NAME=./output/IMG_out/u INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,0)
+WRITE_IMAGE NAME=./output/IMG_out/v INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,1)
+WRITE_IMAGE NAME=./output/IMG_out/w INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,2)
+WRITE_IMAGE NAME=./output/IMG_out/u INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+ 		WIDTH=0.2 VAR=p
 
 
-# FLUX - not working
-# monitor mass flow rate, x-momentum flux, and mixture-mass fraction flux
-# FLUX_PROBE NAME=probes/myFluxProbe INTERVAL=100 XP=0.0 0.0 0.0 NP=1.0 0.0 0.0 VARS=mass_flux() mass_flux(comp(u,0)) mass_flux(Z)
-# FLUX_PROBE NAME=./output/probe_flux/outlet INTERVAL=100 XP=0.0 -0.05 0.04 NP=0 1 0 VARS=mass_flux() mass_flux(comp(u,1))
-
+# ==========================================
+# Tracer conentration
+# ==========================================
+# WRITE_IMAGE NAME=./output/IMG_CT/V INTERVAL=$(interval_IMG) GEOM=Z_PLANE_FRAC 0.5 VAR=CT
+# WRITE_IMAGE NAME=./output/IMG_CT/y2 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=CT
+# WRITE_IMAGE NAME=./output/IMG_CT/y4 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=CT
+# WRITE_IMAGE NAME=./output/IMG_CT/y6 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=CT
 
 
 
