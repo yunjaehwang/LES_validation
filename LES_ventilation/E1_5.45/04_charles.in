@@ -63,7 +63,7 @@ INIT time=0.0 step=0 C=0.0
 INIT_CV_DATA_IN_GEOM GEOM SBIN ../input/building_45.sbin INIT C 100.0
 
 # Final step, starting from the step specified with INIT 
-NSTEPS=60000
+NSTEPS=40000
 TIMESTEP DT=0.0001
 CHECK_INTERVAL=1
 

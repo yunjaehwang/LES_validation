@@ -31,7 +31,7 @@ define y_outlet 0.06
 define z_outlet 0.6
 
 # interval of output data
-define interval_IMG 1
+define interval_IMG 10
 define interval_RES 1000
 define interval_SNAPSHOT 10
 define interval_PC 10

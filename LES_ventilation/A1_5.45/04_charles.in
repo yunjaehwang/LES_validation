@@ -31,7 +31,7 @@ define y_outlet 0.06
 define z_outlet 0.5853
 
 # interval of output data
-define interval_IMG 1
+define interval_IMG 10
 define interval_RES 1000
 define interval_SNAPSHOT 10
 define interval_PC 10
@@ -63,7 +63,7 @@ INIT time=0.0 step=0 C=0.0
 INIT_CV_DATA_IN_GEOM GEOM SBIN ../input/building_45.sbin INIT C 100.0
 
 # Final step, starting from the step specified with INIT 
-NSTEPS=60000
+NSTEPS=40000
 TIMESTEP DT=0.0001
 CHECK_INTERVAL=1
 

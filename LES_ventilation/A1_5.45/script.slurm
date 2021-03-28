@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH -p normal
-#SBATCH -J A1_45	      	# Job name
+#SBATCH -J A1_5.45	      	# Job name
 #SBATCH -o job.%j.out         	# Name of stdout output file (%j expands to jobId)
 #SBATCH -e job.%j.err	      	# Name of error file (%j expands to jobID)
 #SBATCH -N 2                  	# Total number of nodes requested
