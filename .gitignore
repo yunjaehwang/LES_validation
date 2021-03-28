@@ -11,6 +11,10 @@ log.*
 *.mles
 *.sles
 
-# folders
+# output files
 output
+output_init
+*.dat
+*.err
+*.out
 
