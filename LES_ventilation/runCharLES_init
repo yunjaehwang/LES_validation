@@ -1,0 +1,6 @@
+#!/bin/bash
+
+ibrun $HOME/CharLES/nextgen_turb/charles.exe -i 03_charles.in | tee log.init
+
+# $HOME/nextgen/bin/surfer.exe -i 01_surfer.in 
+#mpiexec -n 680 $HOME/nextgen/bin/stitch.exe -i 02_stitch.in
