@@ -14,9 +14,8 @@ echo "Running [your app] with: $cmd on $SLURM_JOB_NODELIST in directory "`pwd`
 date
 
 # Working directory
-# /scratch/07279/tg865790/LES_validation/LES_ventilation/E1_10
 cd $SCRATCH
-cd ./LES_validation/LES_ventilation/A_5
+cd ./LES_validation/LES_ventilation/A1_5
 
 fInput='04_charles.in'
 fLog='log.charles04'
