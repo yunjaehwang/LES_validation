@@ -26,15 +26,15 @@ class fCase():
         self.fPath =''
     
     def readCoord(self):
-        self.XYZ = np.loadtxt(self.fPath+'_XYZ.txt',delimiter=',')
+        self.XYZ = np.loadtxt(self.fPath+'_XYZ.dat',delimiter=',')
     def readVelocity(self):
-        self.U   = np.loadtxt(self.fPath+'_U.txt',delimiter=',')
-        self.V   = np.loadtxt(self.fPath+'_V.txt',delimiter=',')
-        self.W   = np.loadtxt(self.fPath+'_W.txt',delimiter=',')
+        self.U   = np.loadtxt(self.fPath+'_U.dat',delimiter=',')
+        self.V   = np.loadtxt(self.fPath+'_V.dat',delimiter=',')
+        self.W   = np.loadtxt(self.fPath+'_W.dat',delimiter=',')
     def readP(self):
-        self.P   = np.loadtxt(self.fPath+'_P.txt',delimiter=',')
+        self.P   = np.loadtxt(self.fPath+'_P.dat',delimiter=',')
     def readC(self):
-        self.C   = np.loadtxt(self.fPath+'_C.txt',delimiter=',')
+        self.C   = np.loadtxt(self.fPath+'_C.dat',delimiter=',')
     def computeAoA(self):
         self.AoA = np.trapz(self.C, dx=self.dt*self.dstep,axis=0)
             
@@ -145,8 +145,9 @@ plt.hist(D1_5.AoA, color='y', **kwargs, label='Opening locations : top / bottom'
 plt.xlabel('Age of air [second]')
 plt.ylabel('Probability')
 plt.xlim(0,1.)
-plt.ylim(0,10)
-plt.legend( bbox_to_anchor=(0.8,-0.2))
+plt.ylim(0,14)
+plt.legend()
+# plt.legend( bbox_to_anchor=(0.8,-0.2))
 plt.title('Wall porosity = 5%, flow angle = 0$^\circ$')
 plt.savefig('../Results/configurations_5%.png')
 
@@ -211,8 +212,9 @@ plt.hist(D1_5_45.AoA, color='y', **kwargs, label='Opening locations : top / bott
 plt.xlabel('Age of air [second]')
 plt.ylabel('Probability')
 plt.xlim(0,1.2)
-plt.ylim(0,8)
-plt.legend( bbox_to_anchor=(0.8,-0.2))
+plt.ylim(0,12)
+plt.legend()
+# plt.legend( bbox_to_anchor=(0.8,-0.2))
 plt.title('Wall porosity = 5%, flow angle = 45$^\circ$')
 plt.savefig('../Results/configurations_45deg.png')
 
@@ -228,8 +230,8 @@ plt.hist(D1_5_90.AoA, color='y', **kwargs, label='Opening locations : top / bott
 plt.xlabel('Age of air [second]')
 plt.ylabel('Probability')
 plt.xlim(0,2.5)
-plt.ylim(0,4)
-plt.legend( bbox_to_anchor=(0.8,-0.2))
+plt.ylim(0,6)
+plt.legend()
 plt.title('Wall porosity = 5%, flow angle = 90$^\circ$')
 plt.savefig('../Results/configurations_90deg.png')
 
