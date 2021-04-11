@@ -237,10 +237,17 @@ plt.savefig('../Results/configurations_90deg.png')
 
 #%% print data
 
+print('Mean')
 print('E1', np.mean(E1_5.AoA), np.mean(E1_5_45.AoA), np.mean(E1_5_90.AoA))
 print('A1', np.mean(A1_5.AoA), np.mean(A1_5_45.AoA), np.mean(A1_5_90.AoA))
 print('C1', np.mean(C1_5.AoA), np.mean(C1_5_45.AoA), np.mean(C1_5_90.AoA))
 print('D1', np.mean(D1_5.AoA), np.mean(D1_5_45.AoA), np.mean(D1_5_90.AoA))
+
+print('Std')
+print('E1', np.std(E1_5.AoA), np.std(E1_5_45.AoA), np.std(E1_5_90.AoA))
+print('A1', np.std(A1_5.AoA), np.std(A1_5_45.AoA), np.std(A1_5_90.AoA))
+print('C1', np.std(C1_5.AoA), np.std(C1_5_45.AoA), np.std(C1_5_90.AoA))
+print('D1', np.std(D1_5.AoA), np.std(D1_5_45.AoA), np.std(D1_5_90.AoA))
 
 
 
