@@ -44,9 +44,68 @@ E1_5_inflow.readData(fPath)
 
 
 #%%        
-fig, axes = plt.subplots(nrows=1, ncols=2,figsize=(10,6))
-axes[0].scatter(E1_5.X,E1_5.Y,10,E1_5.U)
-axes[1].scatter(E1_5_inflow.X, E1_5_inflow.Y,10,E1_5_inflow.U)
+from scipy.interpolate import griddata
+
+unique_X = np.unique(E1_5.X)
+unique_Y = np.unique(E1_5.Y)
+# len_X = len(unique_X)
+# len_Y = len(unique_Y)
+
+XY=np.transpose([E1_5.X, E1_5.Y])
+
+delta_x=0.005
+grid_x, grid_y = np.mgrid[0.4:0.7:delta_x, 0:0.2:delta_x ]
+grid_u=griddata(XY,E1_5.U,(grid_x,grid_y))
+grid_v=griddata(XY,E1_5.V,(grid_x,grid_y))
+
+grid_u2=griddata(XY,E1_5_inflow.U,(grid_x,grid_y))
+grid_v2=griddata(XY,E1_5_inflow.V,(grid_x,grid_y))
+
+
+#%%
+D=0.1
+U_ref=6.6
+E1_5.mag = np.sqrt(E1_5.U**2.0  + E1_5.V**2.0)
+E1_5_inflow.mag = np.sqrt(E1_5_inflow.U**2.0  + E1_5_inflow.V**2.0)
+
+fig, axes = plt.subplots(nrows=1, ncols=2,figsize=(12,4))
+
+im0 =axes[0].scatter((E1_5.X-0.5)/D,E1_5.Y/D,10, E1_5_inflow.mag/U_ref)
+axes[0].quiver((grid_x-0.5)/D,grid_y/D,grid_u2,grid_v2, scale=100)
+
+im1 =axes[1].scatter((E1_5.X-0.5)/D, E1_5.Y/D,10,E1_5.mag/U_ref)
+axes[1].quiver((grid_x-0.5)/D, grid_y/D,grid_u,grid_v, scale=100)
+
+im0.set_cmap(cmap=plt.get_cmap('jet'))
+im1.set_cmap(cmap=plt.get_cmap('jet'))
+im0.set_clim(0,1.2)
+im1.set_clim(0,1.2)
+
+axes[0].set_title('LES, base inflow')
+axes[1].set_title('LES, optimized inflow')
+for i in range(0,2):
+    axes[i].set(xlim=(-0.05/D,0.15/D), xticks=[-0.5,0,0.5,1,1.5], \
+                ylim=(0,0.15/D), yticks=[0,0.5,1,1.5], \
+                xlabel='x/D', ylabel='y/D')
+
+fig.colorbar(im0, ax=axes, orientation='vertical')
+fig.savefig('E1_5_inflow_velocity_magnitude.png')
+
+#%%
+fig, axes = plt.subplots(nrows=1, ncols=2,figsize=(12,4))
+axes[0].quiver((grid_x-0.5)/D,grid_y/D,grid_u2,grid_v2, scale=100)
+
+
+
+#%%
+fig, axes = plt.subplots(nrows=1, ncols=1,figsize=(6,4))
+# axes.quiver((grid_x-0.5)/D,grid_y/D,grid_u2,grid_v2, color='k', scale=200)
+axes.quiver((grid_x-0.5)/D, grid_y/D,grid_u,grid_v,color='r',scale=200)
+axes.quiver((grid_x-0.5)/D,grid_y/D,grid_u2,grid_v2, color='k', scale=200)
+axes.set(xlim=(-0.05/D,0.15/D), xticks=[-0.5,0,0.5,1,1.5], \
+                ylim=(0,0.15/D), yticks=[0,0.5,1,1.5], \
+                xlabel='x/D', ylabel='y/D')
+
 
 #%%
 data_ref = np.loadtxt('../ReferenceData/E1.csv',skiprows=2,delimiter=',')
@@ -73,7 +132,7 @@ plt.xlabel('x/D')
 plt.ylabel('U/U$_{ref}$')
 plt.grid()
 
-plt.savefig('../Results/')
+# plt.savefig('../Results/E1_5_validation.png')
 
 
 
