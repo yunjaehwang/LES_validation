@@ -1,0 +1,90 @@
+POST
+VERBOSE
+
+# RESTART = ./mesh.mles ./output/RES/RES.00020000.sles
+RESTART = ./E1_5.fine.mles ./result.sles
+STATS u p
+
+EOS HELMHOLTZ
+RHO 1.225
+MU 1.789e-5
+HELMHOLTZ_SOS 340
+
+x0_turb  = SLIP
+X1       = SLIP
+Y0       = SLIP 
+Y1       = SLIP
+# Z0       = SLIP
+# Z1       = SLIP
+building = SLIP
+
+
+# write 3d qty
+#WRITE_DATA NAME=./post_avg/3d_qty \
+#    GEOM=IN_BOX 0.4 0.7 0 0.08 0.4 0.7 \
+#    FORMAT=VTK INTERVAL=1 VARS=u_avg p_avg 
+
+
+# Write image
+
+WRITE_IMAGE NAME=./post_avg/U_avg INTERVAL=1 GEOM=PLANE 0.55 0.10 0.55 0 0 1 VAR=comp(u_avg,0) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/V_avg INTERVAL=1 GEOM=PLANE 0.55 0.10 0.55 0 0 1 VAR=comp(u_avg,1) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/W_avg INTERVAL=1 GEOM=PLANE 0.55 0.10 0.55 0 0 1 VAR=comp(u_avg,2) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/P_avg INTERVAL=1 GEOM=PLANE 0.55 0.10 0.55 0 0 1 VAR=p_avg	 WIDTH=0.4
+
+WRITE_IMAGE NAME=./post_avg/uu INTERVAL=1 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u_rms,0) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/vv INTERVAL=1 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u_rms,1) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/ww INTERVAL=1 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u_rms,2) WIDTH=0.4
+
+WRITE_IMAGE NAME=./post_avg/vw INTERVAL=1 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u_rey,0) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/wu INTERVAL=1 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u_rey,1) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/uv INTERVAL=1 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u_rey,2) WIDTH=0.4
+
+# horizontal plane
+WRITE_IMAGE NAME=./post_avg/Y2_U INTERVAL=1 GEOM=PLANE 0.55 0.02 0.55 0 1 0 VAR=comp(u_avg,0) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/Y2_V INTERVAL=1 GEOM=PLANE 0.55 0.02 0.55 0 1 0 VAR=comp(u_avg,1) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/Y2_W INTERVAL=1 GEOM=PLANE 0.55 0.02 0.55 0 1 0 VAR=comp(u_avg,2) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/Y2_P INTERVAL=1 GEOM=PLANE 0.55 0.02 0.55 0 1 0 VAR=p_avg	 WIDTH=0.4
+
+WRITE_IMAGE NAME=./post_avg/Y4_U INTERVAL=1 GEOM=PLANE 0.55 0.04 0.55 0 1 0 VAR=comp(u_avg,0) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/Y4_V INTERVAL=1 GEOM=PLANE 0.55 0.04 0.55 0 1 0 VAR=comp(u_avg,1) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/Y4_W INTERVAL=1 GEOM=PLANE 0.55 0.04 0.55 0 1 0 VAR=comp(u_avg,2) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/Y4_P INTERVAL=1 GEOM=PLANE 0.55 0.04 0.55 0 1 0 VAR=p_avg	 WIDTH=0.4
+
+WRITE_IMAGE NAME=./post_avg/Y6_U INTERVAL=1 GEOM=PLANE 0.55 0.06 0.55 0 1 0 VAR=comp(u_avg,0) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/Y6_V INTERVAL=1 GEOM=PLANE 0.55 0.06 0.55 0 1 0 VAR=comp(u_avg,1) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/Y6_W INTERVAL=1 GEOM=PLANE 0.55 0.06 0.55 0 1 0 VAR=comp(u_avg,2) WIDTH=0.4
+WRITE_IMAGE NAME=./post_avg/Y6_P INTERVAL=1 GEOM=PLANE 0.55 0.06 0.55 0 1 0 VAR=p_avg	 WIDTH=0.4
+
+
+# inlet & outlet
+WRITE_IMAGE NAME=./post_avg/inlet_U INTERVAL=1 GEOM=PLANE 0.50001 0.04 0.55 1 0 0 VAR=comp(u_avg,0)  WIDTH=0.2
+WRITE_IMAGE NAME=./post_avg/inlet_V INTERVAL=1 GEOM=PLANE 0.50001 0.04 0.55 1 0 0 VAR=comp(u_avg,1)  WIDTH=0.2
+WRITE_IMAGE NAME=./post_avg/inlet_W INTERVAL=1 GEOM=PLANE 0.50001 0.04 0.55 1 0 0 VAR=comp(u_avg,2)  WIDTH=0.2
+WRITE_IMAGE NAME=./post_avg/inlet_P INTERVAL=1 GEOM=PLANE 0.50001 0.04 0.55 1 0 0 VAR=p_avg	WIDTH=0.2
+
+WRITE_IMAGE NAME=./post_avg/outlet_U INTERVAL=1 GEOM=PLANE 0.6 0.04 0.55 1 0 0 VAR=comp(u_avg,0) WIDTH=0.2
+WRITE_IMAGE NAME=./post_avg/outlet_V INTERVAL=1 GEOM=PLANE 0.6 0.04 0.55 1 0 0 VAR=comp(u_avg,1) WIDTH=0.2
+WRITE_IMAGE NAME=./post_avg/outlet_W INTERVAL=1 GEOM=PLANE 0.6 0.04 0.55 1 0 0 VAR=comp(u_avg,2) WIDTH=0.2
+WRITE_IMAGE NAME=./post_avg/outlet_P INTERVAL=1 GEOM=PLANE 0.6 0.04 0.55 1 0 0 VAR=p_avg WIDTH=0.2
+
+
+
+
+
+# PLANE PROBE
+# POINTCLOUD_PROBE NAME=./post_avg/PC/vertical INTERVAL=1 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_vertical.pts VARS comp(u,0) comp(u,1) comp(u,2) p
+
+# horizontal plane
+# POINTCLOUD_PROBE NAME=./post_avg/PC/horizontal_2 INTERVAL=1 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_y2.pts VARS comp(u,0) comp(u,1) comp(u,2) p
+# POINTCLOUD_PROBE NAME=./post_avg/PC/horizontal_4 INTERVAL=1 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_y4.pts VARS comp(u,0) comp(u,1) comp(u,2) p
+# POINTCLOUD_PROBE NAME=./post_avg/PC/horizontal_6 INTERVAL=1 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_y6.pts VARS comp(u,0) comp(u,1) comp(u,2) p
+
+# openings: inlet & outlet
+# POINTCLOUD_PROBE NAME=./post_avg/PC/inlet INTERVAL=1 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_inlet.pts VARS comp(u,0) comp(u,1) comp(u,2) p
+# POINTCLOUD_PROBE NAME=./post_avg/PC/outlet INTERVAL=1 FORMAT=BINARY GEOM=FILE ../input/pointCloudProbe_outlet.pts VARS comp(u,0) comp(u,1) comp(u,2) p
+#
+
+
+# INTERACTIVE
+

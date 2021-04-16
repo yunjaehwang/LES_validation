@@ -3,7 +3,7 @@
 #   - written by Yunjae Hwang
 #
 # ==========================================
-define CASE E1_5.0
+define CASE E1_5.coarse
 # ==========================================
 # Parameters
 # ==========================================
@@ -59,13 +59,14 @@ INTERP_FROM_RESTART ./result.sles
 
 # initialize time, step and concentration
 # Inject high concentration inside the house
-INIT time=0.0 step=0 C=0.0
-INIT_CV_DATA_IN_GEOM GEOM SBIN ../input/building_0.sbin INIT C 100.0
+# INIT time=0.6891 step=6891 # C=0.0
+# INIT_CV_DATA_IN_GEOM GEOM SBIN ../input/building_0.sbin INIT C 100.0
 
 # Final step, starting from the step specified with INIT 
-NSTEPS=40000
+NSTEPS=60000
 TIMESTEP DT=0.0001
 CHECK_INTERVAL=1
+RUNTIME 1.95
 
 # ==========================================
 # Modeling and Boundary Conditions  
@@ -80,15 +81,15 @@ HELMHOLTZ_SOS 340
 SGS_MODEL=VREMAN
 
 # reset stats or comment out to include the results from the previous run
-RESET_STATS
+# RESET_STATS
 STATS u p C
 
 # Boundary Conditions 
 # x0_turb = INFLOW_TURB PROFILE CONSTANT_UTKE 0 1 0 0.05 RESET
 # x0_turb = INLET 5 0 0
 x0_turb = HOOK NY 100 NZ 100 UREF 7.63 REFD 0.3 \
-        LAGT_U 0.042424 LAGT_W 0.012727 LAGT_V 0.008484 C 0.0
-#        LAGT_U 0.04242424 LAGT_W 0.01711911 LAGT_V 0.01141274 C 0.0
+        LAGT_U 0.04242424 LAGT_W 0.01711911 LAGT_V 0.01141274 C 0.0
+#         LAGT_U 0.042424 LAGT_W 0.012727 LAGT_V 0.008484
 X1 = OUTLET_VV 1.0 0.1 0.0 0.0 LOCAL_U
 Y0          = WM_ALG_WALL ROUGHNESS_HEIGHT 0.000025
 Y1          = SLIP

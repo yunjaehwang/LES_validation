@@ -1,38 +1,171 @@
 # ==========================================
-# CharLES post script: SNAPSHOT data file
+# CharLES POST script for LES validation cases
 #   - written by Yunjae Hwang
 #
 # ==========================================
 POST
+
+define CASE E1_5.fine
+# ==========================================
+# Parameters
+# ==========================================
+# domain size
+define Lx 2.1 
+define Ly 0.6
+define Lz 1.1
+
+# rotation angle and normal vector
+define theta 3.141592/180*0.0
+define nx cos($(theta))
+define ny 0.0
+define nz sin($(theta))
+
+# center of inlet & outlet openings
+#   0 deg: (0.50001, 0.04, 0.55), (0.6, 0.04, 0.55)
+#   45 deg: (0.5147, 0.04, 0.5147), (0.5853, 0.04, 0.5853)
+#   90 deg:
+define x_inlet 0.50001
+define y_inlet 0.04
+define z_inlet 0.55
+
+define x_outlet 0.6
+define y_outlet 0.04
+define z_outlet 0.55
+
+# interval of post data
+define interval_IMG 10
+define interval_RES 1000
+define interval_SNAPSHOT 10
+define interval_PC 10
+
+
+# ==========================================
+# Start of script
+# ==========================================
+# including the VERBOSE flag will enhance the information printed to stdout
 VERBOSE
 
-# Read MESH and SNAPSHOT data files
-RESTART=./mesh.mles 
-SNAPSHOT NAME=output/SNAPSHOT/UP RANGE 0 1 10
+# additional scalar to compute age of air
+# with laminar & turbulent Schmidt number =1
+REGISTER_SCALAR C
+C.SC_LAM = 1.0
+C.SC_T = 1.0
 
-# Parameters for running post script
-RESET_STATS
-STATS u p
+# Read converged result file
+RESTART = $(CASE).mles
 
+# Restart file can be specified by just a mesh or from both a mesh and corresponding solution
+# INIT time=0.0 step=0 u=6.6 0 0 p=0
+INTERP_FROM_RESTART ./result.sles
+# INTERP_FROM_RESTART ./post/RES/RES.00003000.sles
+SNAPSHOT NAME=./output/SNAPSHOT/UPC RANGE=0 $(interval_SNAPSHOT) 40000
+
+
+# initialize time, step and concentration
+# Inject high concentration inside the house
+INIT time=0.0 step=0 
+# INIT_CV_DATA_IN_GEOM GEOM SBIN ../input/building_0.sbin INIT C 100.0
+
+# Final step, starting from the step specified with INIT 
+NSTEPS=40000
+TIMESTEP DT=0.0001
+CHECK_INTERVAL=1
+
+# ==========================================
+# Modeling and Boundary Conditions  
+# ==========================================
+# Specification of gas properties
 EOS HELMHOLTZ
 RHO 1.225
 MU 1.789e-5
 HELMHOLTZ_SOS 340
+
+# specification of the sub-gridscale model
 SGS_MODEL=VREMAN
 
-x0_turb  = INLET 1 0 0 
-X1       = SLIP
-Y0       = WALL
-Y1       = SLIP
-building = WALL
+# reset stats or comment out to include the results from the previous run
+# RESET_STATS
+# STATS u p C
+
+# Boundary Conditions 
+# x0_turb = INFLOW_TURB PROFILE CONSTANT_UTKE 0 1 0 0.05 RESET
+# x0_turb = INLET 5 0 0
+x0_turb = HOOK NY 100 NZ 100 UREF 7.63 REFD 0.3 \
+        LAGT_U 0.04242424 LAGT_W 0.01711911 LAGT_V 0.01141274 C 0.0
+#         LAGT_U 0.042424 LAGT_W 0.012727 LAGT_V 0.008484
+X1 = OUTLET_VV 1.0 0.1 0.0 0.0 LOCAL_U
+Y0          = WM_ALG_WALL ROUGHNESS_HEIGHT 0.000025
+Y1          = SLIP
+# Z0 & Z1: periodic
+
+building    = WM_ALG_WALL
+# building    = WALL
 
 # ==========================================
-# Diagnostics from SNAPSHOT files
+# Diagnostics
 # ==========================================
-# Write image
-WRITE_IMAGE NAME=./output_stat/u INTERVAL=1 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u,0)
 
-# WRITE_IMAGE NAME=./output_stat/v INTERVAL=1 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u,1)
-# WRITE_IMAGE NAME=./output_stat/w INTERVAL=1 GEOM=Z_PLANE_FRAC 0.5 VAR=comp(u,2)
+# POINT probe
+# PROBE NAME=./post/PT/inlet  \
+# 	GEOM=POINT $(x_inlet) $(y_inlet) $(z_inlet)    \
+# 	VARS=comp(u,0) comp(u,1) comp(u,2) p
+# PROBE NAME=./post/PT/outlet \
+#	GEOM=POINT $(x_outlet) $(y_outlet) $(z_outlet) \
+#	VARS=comp(u,0) comp(u,1) comp(u,2) p
+
+# ==========================================
+# PNG images 
+# ==========================================
+# vertical & horizontal
+WRITE_IMAGE NAME=./post/IMG_V/mag INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
+		WIDTH=0.4 VAR=mag(u)
+WRITE_IMAGE NAME=./post/IMG_H/mag INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
+		WIDTH=0.4 VAR=mag(u)
+
+WRITE_IMAGE NAME=./post/IMG_V/C INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
+		WIDTH=0.4 VAR=C
+WRITE_IMAGE NAME=./post/IMG_H/C INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
+		WIDTH=0.4 VAR=C
+
+# inlet & outlet
+WRITE_IMAGE NAME=./post/IMG_in/u INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,0)
+WRITE_IMAGE NAME=./post/IMG_in/v INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,1)
+WRITE_IMAGE NAME=./post/IMG_in/w INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,2)
+WRITE_IMAGE NAME=./post/IMG_in/p INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet)  $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=p
+
+WRITE_IMAGE NAME=./post/IMG_out/u INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,0)
+WRITE_IMAGE NAME=./post/IMG_out/v INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,1)
+WRITE_IMAGE NAME=./post/IMG_out/w INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,2)
+WRITE_IMAGE NAME=./post/IMG_out/p INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+ 		WIDTH=0.2 VAR=p
+
+
+# ==========================================
+# Tracer conentration
+# ==========================================
+# WRITE_IMAGE NAME=./post/IMG_CT/V INTERVAL=$(interval_IMG) GEOM=Z_PLANE_FRAC 0.5 VAR=CT
+# WRITE_IMAGE NAME=./post/IMG_CT/y2 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=CT
+# WRITE_IMAGE NAME=./post/IMG_CT/y4 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=CT
+# WRITE_IMAGE NAME=./post/IMG_CT/y6 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=CT
+
 
 
