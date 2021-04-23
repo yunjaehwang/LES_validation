@@ -91,7 +91,6 @@ U_ref=6.6
 # im1 =axes[1].scatter((E1_5.X-0.5)/D, E1_5.Y/D,10,E1_5.mag/U_ref)
 
 fig, axes = plt.subplots(nrows=1, ncols=2,figsize=(16,6))
-
 im0 =axes[0].contourf((grid_x-0.5)/D,grid_y/D, grid_mag_inflow/U_ref)
 axes[0].quiver((grid_x-0.5)/D,grid_y/D,grid_u_inflow,grid_v_inflow, scale=200)
 
@@ -113,6 +112,36 @@ for i in range(0,2):
 fig.colorbar(im0, ax=axes, orientation='vertical')
 fig.savefig('../Results/E1_5_inflow_velocity_magnitude.png')
 
+#%%
+fig, axes = plt.subplots(nrows=1, ncols=3,figsize=(20,5))
+
+im0 =axes[0].contourf((grid_x-0.5)/D,grid_y/D, grid_mag_coarse/U_ref,levels=np.arange(0,1.4,0.1))
+axes[0].quiver((grid_x-0.5)/D,grid_y/D,grid_u_coarse,grid_v_coarse, scale=200)
+
+im1 =axes[1].contourf((grid_x-0.5)/D,grid_y/D, grid_mag/U_ref,levels=np.arange(0,1.4,0.1))
+axes[1].quiver((grid_x-0.5)/D, grid_y/D,grid_u,grid_v, scale=200)
+
+im2 =axes[2].contourf((grid_x-0.5)/D,grid_y/D, grid_mag_fine/U_ref,levels=np.arange(0,1.4,0.1))
+# im2 =axes[2].scatter(E1_5_coarse.X/D,E1_5_coarse.XD, grid_mag_fine/U_ref)
+axes[2].quiver((grid_x-0.5)/D, grid_y/D,grid_u_fine,grid_v_fine, scale=200)
+
+im0.set_cmap(cmap=plt.get_cmap('jet'))
+im1.set_cmap(cmap=plt.get_cmap('jet'))
+im2.set_cmap(cmap=plt.get_cmap('jet'))
+im0.set_clim(0,1.4)
+im1.set_clim(0,1.4)
+im2.set_clim(0,1.4)
+
+axes[0].set_title('LES, coarse mesh')
+axes[1].set_title('LES, base mesh')
+axes[2].set_title('LES, fine mesh')
+for i in range(0,3):
+    axes[i].set(xlim=(-0.05/D,0.15/D), xticks=[-0.5,0,0.5,1,1.5], \
+                ylim=(0,0.15/D), yticks=[0,0.5,1,1.5], \
+                xlabel='x/D', ylabel='y/D')
+
+fig.colorbar(im0, ax=axes, orientation='vertical')
+fig.savefig('../Results/E1_5_grid_velocity_magnitude.png')
 
 #%% each velocity component
 fig, axes = plt.subplots(nrows=2, ncols=3,figsize=(15,8))

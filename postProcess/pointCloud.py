@@ -9,9 +9,9 @@ Created on Fri Mar 26 14:41:50 2021
 import numpy as np
 import matplotlib.pyplot as plt
 
-fCase = 'E1_20'
+fCase = 'D1_5.90'
 # fPath = '../LES_ventilation/E1_5.base_inflow/output/PC/'
-fPath = '../LES_ventilation/'+fCase+'/output/PC/'
+fPath = '../LES_ventilation/'+fCase+'/post/PC/'
 
 coord = np.loadtxt(fPath+'C.pxyz', skiprows=1)
 
@@ -21,9 +21,10 @@ dt, dstep = 0.0001, 100
 C0 = 100
 rawC, rawU, rawV, rawW, rawP = [], [], [], [], []
 
-steps     = np.arange(0,60001,dstep)
+steps     = np.arange(0,90001,dstep)
 timeSteps = steps*dt
 timeSteps = timeSteps-timeSteps[0]
+
 
 for i in steps:
     print('Reading: ', fPath+'C.'+str(i).zfill(8)+'.pcd')
@@ -34,7 +35,7 @@ for i in steps:
     rawW.append(data[:,3])
     rawP.append(data[:,4])
 
-#%% choose only points inside the house and save data
+# choose only points inside the house and save data
 idx = np.asarray(rawC)[0,:] > 90.0
 XYZ = coord[idx,1:]
 C = np.asarray(rawC)[:,idx]/C0
@@ -46,12 +47,12 @@ Umag = np.sqrt(U**2+V**2+W**2)
 
 [lenC, lenPt] = np.shape(C)
 
-np.savetxt('../Results/'+fCase+'_XYZ.txt',XYZ, delimiter=',', fmt='%4e')
-np.savetxt('../Results/'+fCase+'_U.txt',U, delimiter=',', fmt='%4e')
-np.savetxt('../Results/'+fCase+'_V.txt',V, delimiter=',', fmt='%4e')
-np.savetxt('../Results/'+fCase+'_W.txt',W, delimiter=',', fmt='%4e')
-np.savetxt('../Results/'+fCase+'_C.txt',C, delimiter=',', fmt='%4e')
-np.savetxt('../Results/'+fCase+'_P.txt',P, delimiter=',', fmt='%4e')
+np.savetxt('../Results/'+fCase+'_XYZ.dat',XYZ, delimiter=',', fmt='%4e')
+np.savetxt('../Results/'+fCase+'_U.dat',U, delimiter=',', fmt='%4e')
+np.savetxt('../Results/'+fCase+'_V.dat',V, delimiter=',', fmt='%4e')
+np.savetxt('../Results/'+fCase+'_W.dat',W, delimiter=',', fmt='%4e')
+np.savetxt('../Results/'+fCase+'_C.dat',C, delimiter=',', fmt='%4e')
+np.savetxt('../Results/'+fCase+'_P.dat',P, delimiter=',', fmt='%4e')
 
 
 #%%
@@ -108,7 +109,7 @@ plt.colorbar()
 #%%
 plt.figure()
 # plt.hist(aoa,25, density=True)
-plt.hist(aoa,200, density=True)
+plt.hist(aoa,100, density=True)
 # plt.hist(aoa[-10,:],50, density=True)
 # plt.hist(aoa[-100,:],50, density=True)
 plt.xlabel('Age of air [sec]')

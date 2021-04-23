@@ -65,7 +65,7 @@ E1_5_90.computeAoA()
 
 #%%
 kwargs = dict(histtype='stepfilled', density=True, bins=100, \
-              color='b', edgecolor='b', alpha=0.3)
+              color='b', edgecolor='k', alpha=0.3)
 
 plt.figure(figsize=(6,4))
 plt.hist(E1_5.AoA, **kwargs, label='Wall porosity =  5%')
