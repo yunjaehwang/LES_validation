@@ -5,7 +5,7 @@
 # ==========================================
 POST
 
-define CASE E1_10.0
+define CASE E1_5.coarse
 # ==========================================
 # Parameters
 # ==========================================
@@ -32,7 +32,7 @@ define x_outlet 0.6
 define y_outlet 0.04
 define z_outlet 0.55
 
-# interval of post data
+# interval of post_test data
 define interval_IMG 10
 define interval_RES 1000
 define interval_SNAPSHOT 10
@@ -57,8 +57,8 @@ RESTART = $(CASE).mles
 # Restart file can be specified by just a mesh or from both a mesh and corresponding solution
 # INIT time=0.0 step=0 u=6.6 0 0 p=0
 INTERP_FROM_RESTART ./result.sles
-# INTERP_FROM_RESTART ./post/RES/RES.00003000.sles
-SNAPSHOT NAME=./output/SNAPSHOT/UPC RANGE=0 $(interval_SNAPSHOT) 30000
+# INTERP_FROM_RESTART ./post_test/RES/RES.00003000.sles
+SNAPSHOT NAME=./output/SNAPSHOT/UPC RANGE=0 $(interval_SNAPSHOT) 100
 
 
 # initialize time, step and concentration
@@ -106,10 +106,10 @@ building    = WM_ALG_WALL
 # ==========================================
 
 # POINT probe
-# PROBE NAME=./post/PT/inlet  \
+# PROBE NAME=./post_test/PT/inlet  \
 # 	GEOM=POINT $(x_inlet) $(y_inlet) $(z_inlet)    \
 # 	VARS=comp(u,0) comp(u,1) comp(u,2) p
-# PROBE NAME=./post/PT/outlet \
+# PROBE NAME=./post_test/PT/outlet \
 #	GEOM=POINT $(x_outlet) $(y_outlet) $(z_outlet) \
 #	VARS=comp(u,0) comp(u,1) comp(u,2) p
 
@@ -117,55 +117,72 @@ building    = WM_ALG_WALL
 # PNG images 
 # ==========================================
 # vertical & horizontal
-WRITE_IMAGE NAME=./post/IMG_V/mag INTERVAL=$(interval_IMG) \
+WRITE_IMAGE NAME=./post_test/IMG_V/mag INTERVAL=$(interval_IMG) \
 		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
-		WIDTH=0.4 VAR=mag(u)
-WRITE_IMAGE NAME=./post/IMG_H/mag INTERVAL=$(interval_IMG) \
-		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
-		WIDTH=0.4 VAR=mag(u)
+		WIDTH=0.4 VAR=abs(mag(u))
+#WRITE_IMAGE NAME=./post_test/IMG_H/mag INTERVAL=$(interval_IMG) \
+#		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
+#		WIDTH=0.4 VAR=mag(u)
 
-WRITE_IMAGE NAME=./post/IMG_V/C INTERVAL=$(interval_IMG) \
+WRITE_IMAGE NAME=./post_test/IMG_V/C INTERVAL=$(interval_IMG) \
 		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
 		WIDTH=0.4 VAR=C
-WRITE_IMAGE NAME=./post/IMG_H/C INTERVAL=$(interval_IMG) \
-		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
-		WIDTH=0.4 VAR=C
+WRITE_IMAGE NAME=./post_test/IMG_V/abs_C INTERVAL=$(interval_IMG) \
+		GEOM=PLANE 0.55 0.10 0.55 0 0 1 \
+		WIDTH=0.4 VAR=abs(C)
+
+# WRITE_IMAGE NAME=./post_test/IMG_H/C INTERVAL=$(interval_IMG) \
+# 		GEOM=PLANE 0.55 $(y_inlet) 0.55 0 1 0 \
+# 		WIDTH=0.4 VAR=C
 
 # inlet & outlet
-WRITE_IMAGE NAME=./post/IMG_in/u INTERVAL=$(interval_IMG) \
+WRITE_IMAGE NAME=./post_test/IMG_in/u INTERVAL=$(interval_IMG) \
 		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
 		WIDTH=0.2 VAR=comp(u,0)
-WRITE_IMAGE NAME=./post/IMG_in/v INTERVAL=$(interval_IMG) \
+WRITE_IMAGE NAME=./post_test/IMG_in/abs_u INTERVAL=$(interval_IMG) \
 		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
-		WIDTH=0.2 VAR=comp(u,1)
-WRITE_IMAGE NAME=./post/IMG_in/w INTERVAL=$(interval_IMG) \
-		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
-		WIDTH=0.2 VAR=comp(u,2)
-WRITE_IMAGE NAME=./post/IMG_in/p INTERVAL=$(interval_IMG) \
-		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet)  $(nx) $(ny) $(nz) \
-		WIDTH=0.2 VAR=p
+		WIDTH=0.2 VAR=abs(comp(u,0))
 
-WRITE_IMAGE NAME=./post/IMG_out/u INTERVAL=$(interval_IMG) \
-		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
-		WIDTH=0.2 VAR=comp(u,0)
-WRITE_IMAGE NAME=./post/IMG_out/v INTERVAL=$(interval_IMG) \
-		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+WRITE_IMAGE NAME=./post_test/IMG_in/v INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
 		WIDTH=0.2 VAR=comp(u,1)
-WRITE_IMAGE NAME=./post/IMG_out/w INTERVAL=$(interval_IMG) \
-		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+WRITE_IMAGE NAME=./post_test/IMG_in/w INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
 		WIDTH=0.2 VAR=comp(u,2)
-WRITE_IMAGE NAME=./post/IMG_out/p INTERVAL=$(interval_IMG) \
-		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
- 		WIDTH=0.2 VAR=p
+WRITE_IMAGE NAME=./post_test/IMG_in/uv INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=comp(u,0)+comp(u,1)
+
+WRITE_IMAGE NAME=./post_test/IMG_in/abs_uv INTERVAL=$(interval_IMG) \
+		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet) $(nx) $(ny) $(nz) \
+		WIDTH=0.2 VAR=abs(comp(u,0)+comp(u,1))
+
+
+#WRITE_IMAGE NAME=./post_test/IMG_in/p INTERVAL=$(interval_IMG) \
+#		GEOM=PLANE $(x_inlet) $(y_inlet) $(z_inlet)  $(nx) $(ny) $(nz) \
+#		WIDTH=0.2 VAR=p
+
+#WRITE_IMAGE NAME=./post_test/IMG_out/u INTERVAL=$(interval_IMG) \
+#		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+#		WIDTH=0.2 VAR=comp(u,0)
+#WRITE_IMAGE NAME=./post_test/IMG_out/v INTERVAL=$(interval_IMG) \
+#		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+#		WIDTH=0.2 VAR=comp(u,1)
+#WRITE_IMAGE NAME=./post_test/IMG_out/w INTERVAL=$(interval_IMG) \
+#		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+#		WIDTH=0.2 VAR=comp(u,2)
+#WRITE_IMAGE NAME=./post_test/IMG_out/p INTERVAL=$(interval_IMG) \
+#		GEOM=PLANE $(x_outlet) $(y_outlet) $(z_outlet) $(nx) $(ny) $(nz) \
+# 		WIDTH=0.2 VAR=p
 
 
 # ==========================================
 # Tracer conentration
 # ==========================================
-# WRITE_IMAGE NAME=./post/IMG_CT/V INTERVAL=$(interval_IMG) GEOM=Z_PLANE_FRAC 0.5 VAR=CT
-# WRITE_IMAGE NAME=./post/IMG_CT/y2 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=CT
-# WRITE_IMAGE NAME=./post/IMG_CT/y4 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=CT
-# WRITE_IMAGE NAME=./post/IMG_CT/y6 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=CT
+# WRITE_IMAGE NAME=./post_test/IMG_CT/V INTERVAL=$(interval_IMG) GEOM=Z_PLANE_FRAC 0.5 VAR=CT
+# WRITE_IMAGE NAME=./post_test/IMG_CT/y2 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.02 0.55 0 1 0 VAR=CT
+# WRITE_IMAGE NAME=./post_test/IMG_CT/y4 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.04 0.55 0 1 0 VAR=CT
+# WRITE_IMAGE NAME=./post_test/IMG_CT/y6 INTERVAL=$(interval_IMG) GEOM=PLANE 1.05 0.06 0.55 0 1 0 VAR=CT
 
 
 
