@@ -2,7 +2,7 @@ POST
 VERBOSE
 
 # RESTART = ./mesh.mles ./output/RES/RES.00020000.sles
-RESTART = ./A1_5.0.mles 
+RESTART = ./E1_20.0.mles 
 INTERP_FROM_RESTART ./result.sles
 STATS u p
 
