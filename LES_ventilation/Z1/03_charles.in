@@ -22,7 +22,7 @@ CHECK_INTERVAL=1
 # - DT=<constant dt>
 # - CFL=<constant cfl>
 TIMESTEP DT=0.0001
-
+RUNTIME 1.95
 # ==========================================
 # Modeling and Boundary Conditions  
 # ==========================================

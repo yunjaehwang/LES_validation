@@ -58,7 +58,7 @@ RESTART = $(CASE).mles
 # INIT time=0.0 step=0 u=6.6 0 0 p=0
 INTERP_FROM_RESTART ./result.sles
 # INTERP_FROM_RESTART ./post/RES/RES.00003000.sles
-SNAPSHOT NAME=./output/SNAPSHOT/UPC RANGE=0 $(interval_SNAPSHOT) 29000
+SNAPSHOT NAME=./output/SNAPSHOT/UPC RANGE=0 $(interval_SNAPSHOT) 37040
 
 
 # initialize time, step and concentration

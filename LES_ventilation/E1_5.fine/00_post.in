@@ -35,7 +35,7 @@ define z_outlet 0.55
 # interval of post data
 define interval_IMG 10
 define interval_RES 1000
-define interval_SNAPSHOT 10
+define interval_SNAPSHOT 50
 define interval_PC 10
 
 
@@ -104,14 +104,25 @@ building    = WM_ALG_WALL
 # ==========================================
 # Diagnostics
 # ==========================================
-
 # POINT probe
-# PROBE NAME=./post/PT/inlet  \
-# 	GEOM=POINT $(x_inlet) $(y_inlet) $(z_inlet)    \
-# 	VARS=comp(u,0) comp(u,1) comp(u,2) p
-# PROBE NAME=./post/PT/outlet \
-#	GEOM=POINT $(x_outlet) $(y_outlet) $(z_outlet) \
-#	VARS=comp(u,0) comp(u,1) comp(u,2) p
+PROBE NAME=./post/PT/inlet  \
+         GEOM=POINT $(x_inlet) $(y_inlet) $(z_inlet)    \
+         VARS=comp(u,0) comp(u,1) comp(u,2) p
+
+PROBE NAME=./post/PT/outlet \
+          GEOM=POINT $(x_outlet) $(y_outlet) $(z_outlet) \
+          VARS=comp(u,0) comp(u,1) comp(u,2) p
+
+# LINE probe
+# PROBE NAME=./post/LINE/bd GEOM=LINE 0.55 0.01 0.55 0.55 0.6 0.55 120 \
+#       VARS=comp(u,0) comp(u,1) comp(u,2) p
+
+# POINT CLOUD probe
+POINTCLOUD_PROBE NAME=./post/PC/C \
+                     INTERVAL=$(interval_PC) PRECISION=FLOAT \
+                     GEOM=FILE ../input/PC_concentration.txt \
+                     VARS comp(u,0) comp(u,1) comp(u,2) p C
+
 
 # ==========================================
 # PNG images 
